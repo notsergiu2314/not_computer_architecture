@@ -1,0 +1,82 @@
+//Aveti de implementat etapa de fetch si decode pentru urmatoarele pozitii de biti:
+//|IR10|IR1|IR11|IR6|IR3|IR12|IR4|IR13|IR9|IR8|IR2|IR7|IR14|IR0|IR5|IR15|
+
+module control_unit(
+    input clk,
+    input rst,
+    input [15:0] ir,
+    output reg regs_oe,
+    output reg regs_we,
+    output reg [2:0] regs_addr,
+    output reg ram_we, 
+    output reg ram_oe,
+    output reg ma_oe, 
+    output reg ma_we,
+    output reg pc_oe, 
+    output reg pc_we,
+    output reg ir_we,
+    output reg ir_oe,
+    output reg [6:0] opc,
+    output reg d,
+    output reg [1:0] mod,
+    output reg [2:0] rg,
+    output reg [2:0] rm
+);
+
+// Define further states here (if needed)
+localparam INIT = 0;
+localparam FETCH = 1;
+localparam DECODE  = 10;
+
+
+reg [7:0] state, next_state;
+
+always @(posedge clk) begin
+    if (!rst) state <= INIT;
+    else state <= next_state;
+end
+
+
+always @(*) begin
+    regs_oe = 0;
+    regs_we = 0;
+    regs_addr = 0;
+    ram_we = 0;
+    ram_oe = 0;
+    ma_oe = 0;
+    ma_we = 0;
+    pc_oe = 0;
+    pc_we = 0;
+    ir_oe = 0;
+    ir_we = 0;
+
+    case(state)
+    INIT: next_state = FETCH;
+    // TODO define FETCH here
+    FETCH: begin
+        pc_oe = 1;
+        ma_we = 1;
+        next_state = FETCH + 1;
+        end
+    FETCH + 1: begin
+        ma_oe = 1;
+        next_state = FETCH + 2;
+        end
+    FETCH + 2: begin
+        ir_we = 1;
+        ram_oe = 1;
+        next_state = DECODE;
+        end
+    DECODE: begin
+        ir_oe = 1;
+        opc = {ir[4], ir[12], ir[3], ir[6], ir[11], ir[1], ir[10]};
+        d = ir[13];
+        mod = {ir[8], ir[9]};
+        rg = {ir[14], ir[7], ir[2]};
+        rm = {ir[15], ir[5], ir[0]};
+        end
+    default: next_state = INIT;
+    endcase
+end
+
+endmodule

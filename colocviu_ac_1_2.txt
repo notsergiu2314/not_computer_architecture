@@ -1,0 +1,13 @@
+
+    LOAD + 1: begin
+        t2_we = 1;
+        regs_addr = XA;
+        regs_oe = 1;
+    end
+
+    LOAD + 2: begin
+        alu_opcode = ADC;
+        alu_carry = 0;
+        alu_oe = 1;
+        t1_oe = 1;
+        t2_oe = 1;
